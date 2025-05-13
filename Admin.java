@@ -34,96 +34,145 @@
 import java.io.*;
 import java.util.*;
 
-public class Admin {
+class Admin {
+    private final String EMPLOYEE_FILE = "employees.txt";
+    private Scanner scanner = new Scanner(System.in);
 
-    Scanner sc = new Scanner(System.in);
-    File employeeFile = new File("data/employees.txt");
+    public boolean login(String username, String password) {
+        try {
+            File file = new File(EMPLOYEE_FILE);
+            if (!file.exists()) return false;
+            Scanner reader = new Scanner(file);
+            while (reader.hasNextLine()) {
+                String[] data = reader.nextLine().split(",");
+                if (data.length >= 4 && data[1].equals(username) && data[2].equals(password) && data[3].equals("admin")) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Login error: " + e.getMessage());
+        }
+        return false;
+    }
 
-    public void start() {
-        System.out.println("==== Admin Panel ====");
-        while (true) {
-            System.out.println("\n1. Add Employee\n2. List Employees\n3. Delete Employee\n4. Exit");
+    public void adminMenu() {
+        int choice;
+        do {
+            System.out.println("\n--- Admin Panel ---");
+            System.out.println("1. Add Employee");
+            System.out.println("2. List Employees");
+            System.out.println("3. Search Employee");
+            System.out.println("4. Delete Employee");
+            System.out.println("5. Logout");
             System.out.print("Choose: ");
-            int choice = sc.nextInt();
-            sc.nextLine();
+            choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 1: addEmployee(); break;
                 case 2: listEmployees(); break;
-                case 3: deleteEmployee(); break;
-                case 4: return;
-                default: System.out.println("Invalid choice!");
+                case 3: searchEmployee(); break;
+                case 4: deleteEmployee(); break;
+                case 5: System.out.println("Logging out..."); break;
+                default: System.out.println("Invalid option");
             }
-        }
+        } while (choice != 5);
     }
 
     private void addEmployee() {
         try {
-            System.out.print("ID: ");
-            String id = sc.nextLine();
-            System.out.print("Name: ");
-            String name = sc.nextLine();
-            System.out.print("Password: ");
-            String pass = sc.nextLine();
-            System.out.print("Type: ");
-            String type = sc.nextLine();
+            System.out.print("Enter ID: ");
+            String id = scanner.nextLine();
+            System.out.print("Enter Username: ");
+            String user = scanner.nextLine();
+            System.out.print("Enter Password: ");
+            String pass = scanner.nextLine();
+            System.out.print("Enter Role (admin/marketing/inventory/sales): ");
+            String role = scanner.nextLine();
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter(employeeFile, true));
-            bw.write(id + "," + name + "," + pass + "," + type);
-            bw.newLine();
-            bw.close();
-            System.out.println("Employee Added!");
+            FileWriter fw = new FileWriter(EMPLOYEE_FILE, true);
+            fw.write(id + "," + user + "," + pass + "," + role + "\n");
+            fw.close();
+            System.out.println("Employee added successfully.");
         } catch (IOException e) {
-            System.out.println("Error writing file.");
+            System.out.println("Error adding employee: " + e.getMessage());
         }
     }
 
     private void listEmployees() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(employeeFile));
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
+            File file = new File(EMPLOYEE_FILE);
+            if (!file.exists()) {
+                System.out.println("No employees yet.");
+                return;
             }
-            br.close();
-        } catch (IOException e) {
-            System.out.println("Error reading file.");
+            Scanner reader = new Scanner(file);
+            System.out.println("\n--- Employee List ---");
+            while (reader.hasNextLine()) {
+                String[] data = reader.nextLine().split(",");
+                if (data.length >= 4)
+                    System.out.println("ID: " + data[0] + ", Username: " + data[1] + ", Role: " + data[3]);
+            }
+        } catch (Exception e) {
+            System.out.println("Error listing employees: " + e.getMessage());
+        }
+    }
+
+    private void searchEmployee() {
+        System.out.print("Enter ID to search: ");
+        String searchId = scanner.nextLine();
+        boolean found = false;
+        try {
+            File file = new File(EMPLOYEE_FILE);
+            if (!file.exists()) return;
+            Scanner reader = new Scanner(file);
+            while (reader.hasNextLine()) {
+                String[] data = reader.nextLine().split(",");
+                if (data[0].equals(searchId)) {
+                    System.out.println("Found: Username = " + data[1] + ", Role = " + data[3]);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) System.out.println("Employee not found.");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
     private void deleteEmployee() {
-        try {
-            System.out.print("Enter ID to delete: ");
-            String id = sc.nextLine();
+        System.out.print("Enter ID to delete: ");
+        String deleteId = scanner.nextLine();
+        File inputFile = new File(EMPLOYEE_FILE);
+        File tempFile = new File("temp_employees.txt");
 
-            File tempFile = new File("data/temp.txt");
-            BufferedReader br = new BufferedReader(new FileReader(employeeFile));
-            BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
 
             String line;
-            boolean found = false;
-            while ((line = br.readLine()) != null) {
-                if (!line.startsWith(id + ",")) {
-                    bw.write(line);
-                    bw.newLine();
+            boolean deleted = false;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (!data[0].equals(deleteId)) {
+                    writer.println(line);
                 } else {
-                    found = true;
+                    deleted = true;
                 }
             }
 
-            br.close();
-            bw.close();
-
-            if (found) {
-                employeeFile.delete();
-                tempFile.renameTo(employeeFile);
-                System.out.println("Employee Deleted.");
-            } else {
-                System.out.println("ID not found.");
+            writer.close();
+            reader.close();
+            if (inputFile.delete()) {
+                tempFile.renameTo(inputFile);
+                if (deleted)
+                    System.out.println("Employee deleted.");
+                else
+                    System.out.println("ID not found.");
             }
-
         } catch (IOException e) {
-            System.out.println("Error updating file.");
+            System.out.println("Error deleting employee: " + e.getMessage());
         }
     }
 }
+
