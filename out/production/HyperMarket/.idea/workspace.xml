@@ -36,6 +36,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.InventoryManagementSystemUI.executor": "Run",
     "Application.Main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -43,11 +44,6 @@
     "kotlin-language-version-configured": "true"
   }
 }]]></component>
-  <component name="QodanaReportsService">
-    <option name="descriptions">
-      <ReportDescription localRun="true" path="C:\Users\zeyad\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="d292923c-3574-49f2-9894-62d5baa45b3d" reportId="HyperMarket/qodana/2025-05-14" />
-    </option>
-  </component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Main" />
