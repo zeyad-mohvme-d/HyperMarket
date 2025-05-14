@@ -1,9 +1,9 @@
 import java.util.*;
 import java.io.*;
 class Sales {
-    private final String EMPLOYEE_FILE = "employees.txt";
-    private final String PRODUCT_FILE = "products.txt";
-    private final String ORDER_FILE = "orders.txt";
+    private final String EMPLOYEE_FILE = "Data/employees.txt";
+    private final String PRODUCT_FILE = "Data/products.txt";
+    private final String ORDER_FILE = "Data/orders.txt";
     private Scanner scanner = new Scanner(System.in);
 
     public boolean login(String username, String password) {

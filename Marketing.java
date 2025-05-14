@@ -1,8 +1,8 @@
 import java.util.*;
 import java.io.*;
 class Marketing {
-    private final String EMPLOYEE_FILE = "employees.txt";
-    private final String OFFERS_FILE = "offers.txt";
+    private final String EMPLOYEE_FILE = "Data/employees.txt";
+    private final String OFFERS_FILE = "Data/offers.txt";
     private Scanner scanner = new Scanner(System.in);
 
     public boolean login(String username, String password) {
@@ -47,7 +47,7 @@ class Marketing {
         System.out.print("Enter keyword to search product: ");
         String keyword = scanner.nextLine().toLowerCase();
         try {
-            File file = new File("products.txt");
+            File file = new File("Data/products.txt");
             if (!file.exists()) {
                 System.out.println("No products found.");
                 return;

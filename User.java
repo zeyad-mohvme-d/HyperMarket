@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 class User {
-    private final String USER_FILE = "users.txt";
+    private final String USER_FILE = "Data/users.txt";
     private Scanner scanner = new Scanner(System.in);
     private String loggedUserId = null;
 

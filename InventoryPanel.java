@@ -1,11 +1,54 @@
 import java.util.*;
 import java.io.*;
-improt java.io.IOException;
+import java.io.IOException;
+
+
+
+
+import javax.swing.*;
+import java.awt.*;
+
+public class InventoryPanel extends JFrame {
+    Inventory inventory = new Inventory();
+
+    public InventoryPanel() {
+        setTitle("Inventory Module");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new GridLayout(8, 1));
+
+        add(createButton("Add Product", inventory::addProduct));
+        add(createButton("Update Product", inventory::updateProduct));
+        add(createButton("Delete Product", inventory::deleteProduct));
+        add(createButton("List Products", inventory::listProducts));
+        add(createButton("Search Product", inventory::searchProduct));
+        add(createButton("Log Damaged/Returned Product", inventory::addDamaged));
+        add(createButton("Check Notifications", inventory::checkNotifications));
+        add(createButton("Close", () -> dispose()));
+
+        setVisible(true);
+    }
+
+    private JButton createButton(String label, Runnable action) {
+        JButton button = new JButton(label);
+        button.addActionListener(e -> action.run());
+        return button;
+    }
+}
+
+
+
+
+
+
+
+
 class Inventory {
-    private final String EMPLOYEE_FILE = "employees.txt";
-    private final String PRODUCT_FILE = "products.txt";
-    private final String DAMAGED_FILE = "damaged.txt";
-    private final String NOTIFICATION_FILE = "notifications.txt";
+
+    private final String EMPLOYEE_FILE = "Data/employees.txt";
+    private final String PRODUCT_FILE = "Data/products.txt";
+    private final String DAMAGED_FILE = "Data/damaged.txt";
+    private final String NOTIFICATION_FILE = "Data/notifications.txt";
 
     private Scanner scanner = new Scanner(System.in);
 
@@ -56,7 +99,7 @@ class Inventory {
         } while (choice != 8);
     }
 
-    private void addProduct() {
+    void addProduct() {
         try {
             System.out.print("Product ID: ");
             String id = scanner.nextLine();
@@ -77,7 +120,7 @@ class Inventory {
         }
     }
 
-    private void listProducts() {
+    void listProducts() {
         try {
             File file = new File(PRODUCT_FILE);
             if (!file.exists()) {
@@ -95,7 +138,7 @@ class Inventory {
         }
     }
 
-    private void searchProduct() {
+    void searchProduct() {
         System.out.print("Enter product ID to search: ");
         String searchId = scanner.nextLine();
         boolean found = false;
@@ -116,7 +159,7 @@ class Inventory {
         }
     }
 
-    private void updateProduct() {
+    void updateProduct() {
         System.out.print("Enter Product ID to update: ");
         String updateId = scanner.nextLine();
         File inputFile = new File(PRODUCT_FILE);
@@ -160,7 +203,7 @@ class Inventory {
         }
     }
 
-    private void deleteProduct() {
+    void deleteProduct() {
         System.out.print("Enter Product ID to delete: ");
         String deleteId = scanner.nextLine();
         File inputFile = new File(PRODUCT_FILE);
@@ -196,7 +239,7 @@ class Inventory {
         }
     }
 
-    private void addDamaged() {
+    void addDamaged() {
         try {
             System.out.print("Product ID: ");
             String id = scanner.nextLine();
@@ -212,7 +255,7 @@ class Inventory {
         }
     }
 
-    private void checkNotifications() {
+    void checkNotifications() {
         try {
             File file = new File(PRODUCT_FILE);
             if (!file.exists()) {
@@ -227,17 +270,17 @@ class Inventory {
                 int qty = Integer.parseInt(data[2]);
                 String expiry = data[3];
                 if (qty < 10) {
-                    notifier.println(\"Low stock alert: \" + data[1] + \" (\" + data[0] + \") has only \" + qty + \" units.\");
+                    notifier.println("\"Low stock alert: \" + data[1] + \" (\" + data[0] + \") has only \" + qty + \" units.\"");
                 }
 
-                if (expiry.compareTo(\"2025-01-01\") < 0) {
-                        notifier.println(\"Expiry alert: \" + data[1] + \" (\" + data[0] + \") expiring soon on \" + expiry + \".\");
+                if (expiry.compareTo("\"2025-01-01\"") < 0) {
+                        notifier.println("\"Expiry alert: \" + data[1] + \" (\" + data[0] + \") expiring soon on \" + expiry + \".\"");
             }
         }
         notifier.close();
-        System.out.println(\"Notifications written to \" + NOTIFICATION_FILE);
+        System.out.println("\"Notifications written to \" "+ NOTIFICATION_FILE);
     } catch (Exception e) {
-        System.out.println(\"Notification error: \" + e.getMessage());
+        System.out.println("\"Notification error: \" "+ e.getMessage());
     }
 }
 }
