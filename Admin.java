@@ -3,7 +3,7 @@ import java.io.*;
 import java.util.*;
 
 class Admin {
-    private final String EMPLOYEE_FILE = "data/employees.txt";
+    private final String EMPLOYEE_FILE = "Data/employees.txt";
     private Scanner scanner = new Scanner(System.in);
 
     public boolean login(String username, String password) {

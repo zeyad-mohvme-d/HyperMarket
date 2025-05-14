@@ -1,0 +1,5 @@
+Product1,Electronics,100,In Stock
+Product2,Clothing,50,Out of Stock
+Product3,Food,200,In Stock
+Product4,Toys,30,In Stock
+Product5,Books,150,Out of Stock

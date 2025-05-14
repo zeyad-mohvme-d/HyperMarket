@@ -1,8 +1,18 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridLayout;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-public class InventoryManagementSystemUI{
+public class InventoryManagementSystemUI {
+
+    public InventoryManagementSystemUI() {
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(InventoryManagementSystemUI::createAndShowGUI);
@@ -18,7 +28,7 @@ public class InventoryManagementSystemUI{
         panel.setLayout(new GridLayout(7, 1, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        JLabel titleLabel = new JLabel("Inventory Management System", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Inventory Management System", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         panel.add(titleLabel);
 
@@ -29,20 +39,29 @@ public class InventoryManagementSystemUI{
         JButton userBtn = new JButton("User Login");
         JButton exitBtn = new JButton("Exit");
 
-        // Admin login handling
         adminBtn.addActionListener(e -> {
             String username = JOptionPane.showInputDialog(frame, "Enter Admin Username:");
             String password = JOptionPane.showInputDialog(frame, "Enter Admin Password:");
             Admin admin = new Admin();
             if (admin.login(username, password)) {
-                admin.adminMenu(); // Open admin menu on successful login
+                admin.adminMenu();
             } else {
                 JOptionPane.showMessageDialog(frame, "Invalid credentials.");
             }
         });
 
         inventoryBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Inventory Staff Login Page"));
-        marketingBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Marketing Staff Login Page"));
+        marketingBtn.addActionListener(e -> {
+            String username = JOptionPane.showInputDialog(frame, "Enter Marketing Staff Username:");
+            String password = JOptionPane.showInputDialog(frame, "Enter Marketing Staff Password:");
+            Marketing marketing = new Marketing();
+            if (marketing.login(username, password)) {
+                marketing.marketingMenu();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid credentials.");
+            }
+        });
+
         salesBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Sales Staff Login Page"));
         userBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "User Login Page"));
         exitBtn.addActionListener(e -> System.exit(0));
