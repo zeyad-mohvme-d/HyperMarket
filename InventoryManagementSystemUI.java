@@ -1,12 +1,10 @@
 import java.awt.*;
 import javax.swing.*;
-import java.io.File;
 
 public class InventoryManagementSystemUI {
-    private static final String EMPLOYEE_FILE = "employees.txt";  // Path to employee file
+    private static final String EMPLOYEE_FILE = "employees.txt";
 
-    public InventoryManagementSystemUI() {
-    }
+    public InventoryManagementSystemUI() {}
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(InventoryManagementSystemUI::createAndShowGUI);
@@ -68,25 +66,35 @@ public class InventoryManagementSystemUI {
                 JOptionPane.showMessageDialog(frame, "Invalid credentials.");
             }
         });
-        
+
+        // Sales staff login action
         salesBtn.addActionListener(e -> {
             String username = JOptionPane.showInputDialog(frame, "Enter Sales Staff Username:");
             String password = JOptionPane.showInputDialog(frame, "Enter Sales Staff Password:");
             Sales sales = new Sales();
             if (sales.login(username, password)) {
-                sales.showSalesMenu(frame);  // Show Sales menu UI
+                sales.showSalesMenu(frame);
             } else {
                 JOptionPane.showMessageDialog(frame, "Invalid credentials.");
             }
         });
 
-        // User login action
-        userBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "User Login Page"));
+        // User login action with GUI
+        userBtn.addActionListener(e -> {
+            String username = JOptionPane.showInputDialog(frame, "Enter User Username:");
+            String password = JOptionPane.showInputDialog(frame, "Enter User Password:");
+            User user = new User();
+            if (user.login(username, password)) {
+                showUserMenu(user);
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid credentials.");
+            }
+        });
 
         // Exit action
         exitBtn.addActionListener(e -> System.exit(0));
 
-        // Adding buttons to the panel
+        // Add buttons to the panel
         panel.add(adminBtn);
         panel.add(inventoryBtn);
         panel.add(marketingBtn);
@@ -96,5 +104,60 @@ public class InventoryManagementSystemUI {
 
         frame.add(panel);
         frame.setVisible(true);
+    }
+
+    // User GUI Menu
+    private static void showUserMenu(User user) {
+        JFrame userFrame = new JFrame("User Panel");
+        userFrame.setSize(350, 250);
+        userFrame.setLocationRelativeTo(null);
+        userFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        JButton viewProfileBtn = new JButton("View Profile");
+        JButton updateInfoBtn = new JButton("Update Info");
+        JButton logoutBtn = new JButton("Logout");
+
+        viewProfileBtn.addActionListener(e -> {
+            String[] profile = user.getProfile();
+            if (profile != null) {
+                JOptionPane.showMessageDialog(userFrame,
+                        "ID: " + profile[0] + "\nUsername: " + profile[1] + "\nPassword: " + profile[2],
+                        "User Profile", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(userFrame, "Failed to load profile.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        updateInfoBtn.addActionListener(e -> {
+            JTextField usernameField = new JTextField();
+            JTextField passwordField = new JPasswordField();
+            Object[] message = {
+                    "New Username:", usernameField,
+                    "New Password:", passwordField
+            };
+
+            int option = JOptionPane.showConfirmDialog(userFrame, message, "Update Info", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                String newUsername = usernameField.getText();
+                String newPassword = passwordField.getText();
+                if (user.updateInfoGUI(newUsername, newPassword)) {
+                    JOptionPane.showMessageDialog(userFrame, "Info updated successfully.");
+                } else {
+                    JOptionPane.showMessageDialog(userFrame, "Failed to update info.");
+                }
+            }
+        });
+
+        logoutBtn.addActionListener(e -> userFrame.dispose());
+
+        panel.add(viewProfileBtn);
+        panel.add(updateInfoBtn);
+        panel.add(logoutBtn);
+
+        userFrame.add(panel);
+        userFrame.setVisible(true);
     }
 }
