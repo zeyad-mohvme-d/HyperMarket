@@ -1,41 +1,9 @@
-////public class Admin {
-////    private String username = 'admin';
-////    private String password = 'admin12345';
-////
-////    Admin(){
-////
-////    }
-////
-////    Admin(String username, String password){
-////        this.username = username;
-////        this.password = password;
-////    }
-////
-////    public String getUsername() {
-////        return username;
-////    }
-////
-////    public String getPassword() {
-////        return password;
-////    }
-////
-////    public void setUsername(String username) {
-////        this.username = username;
-////    }
-////
-////    public void setPassword(String password) {
-////        this.password = password;
-////    }
-////    public void AddEmployee(int id, String password){
-////
-////    }
-////}
-//
+import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
 class Admin {
-    private final String EMPLOYEE_FILE = "Data/employees.txt";
+    private final String EMPLOYEE_FILE = "data/employees.txt";
     private Scanner scanner = new Scanner(System.in);
 
     public boolean login(String username, String password) {
@@ -58,44 +26,39 @@ class Admin {
     public void adminMenu() {
         int choice;
         do {
-            System.out.println("\n--- Admin Panel ---");
-            System.out.println("1. Add Employee");
-            System.out.println("2. List Employees");
-            System.out.println("3. Search Employee");
-            System.out.println("4. Delete Employee");
-            System.out.println("5. Logout");
-            System.out.print("Choose: ");
-            choice = scanner.nextInt();
-            scanner.nextLine();
+            String options = "\n--- Admin Panel ---\n" +
+                    "1. Add Employee\n" +
+                    "2. List Employees\n" +
+                    "3. Search Employee\n" +
+                    "4. Delete Employee\n" +
+                    "5. Logout\n" +
+                    "Choose: ";
+            choice = Integer.parseInt(JOptionPane.showInputDialog(options));
 
             switch (choice) {
                 case 1: addEmployee(); break;
                 case 2: listEmployees(); break;
                 case 3: searchEmployee(); break;
                 case 4: deleteEmployee(); break;
-                case 5: System.out.println("Logging out..."); break;
-                default: System.out.println("Invalid option");
+                case 5: JOptionPane.showMessageDialog(null, "Logging out..."); break;
+                default: JOptionPane.showMessageDialog(null, "Invalid option");
             }
         } while (choice != 5);
     }
 
     private void addEmployee() {
         try {
-            System.out.print("Enter ID: ");
-            String id = scanner.nextLine();
-            System.out.print("Enter Username: ");
-            String user = scanner.nextLine();
-            System.out.print("Enter Password: ");
-            String pass = scanner.nextLine();
-            System.out.print("Enter Role (admin/marketing/inventory/sales): ");
-            String role = scanner.nextLine();
+            String id = JOptionPane.showInputDialog("Enter ID: ");
+            String user = JOptionPane.showInputDialog("Enter Username: ");
+            String pass = JOptionPane.showInputDialog("Enter Password: ");
+            String role = JOptionPane.showInputDialog("Enter Role (admin/marketing/inventory/sales): ");
 
             FileWriter fw = new FileWriter(EMPLOYEE_FILE, true);
             fw.write(id + "," + user + "," + pass + "," + role + "\n");
             fw.close();
-            System.out.println("Employee added successfully.");
+            JOptionPane.showMessageDialog(null, "Employee added successfully.");
         } catch (IOException e) {
-            System.out.println("Error adding employee: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error adding employee: " + e.getMessage());
         }
     }
 
@@ -103,24 +66,24 @@ class Admin {
         try {
             File file = new File(EMPLOYEE_FILE);
             if (!file.exists()) {
-                System.out.println("No employees yet.");
+                JOptionPane.showMessageDialog(null, "No employees yet.");
                 return;
             }
             Scanner reader = new Scanner(file);
-            System.out.println("\n--- Employee List ---");
+            StringBuilder sb = new StringBuilder("\n--- Employee List ---\n");
             while (reader.hasNextLine()) {
                 String[] data = reader.nextLine().split(",");
                 if (data.length >= 4)
-                    System.out.println("ID: " + data[0] + ", Username: " + data[1] + ", Role: " + data[3]);
+                    sb.append("ID: ").append(data[0]).append(", Username: ").append(data[1]).append(", Role: ").append(data[3]).append("\n");
             }
+            JOptionPane.showMessageDialog(null, sb.toString());
         } catch (Exception e) {
-            System.out.println("Error listing employees: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error listing employees: " + e.getMessage());
         }
     }
 
     private void searchEmployee() {
-        System.out.print("Enter ID to search: ");
-        String searchId = scanner.nextLine();
+        String searchId = JOptionPane.showInputDialog("Enter ID to search: ");
         boolean found = false;
         try {
             File file = new File(EMPLOYEE_FILE);
@@ -129,22 +92,21 @@ class Admin {
             while (reader.hasNextLine()) {
                 String[] data = reader.nextLine().split(",");
                 if (data[0].equals(searchId)) {
-                    System.out.println("Found: Username = " + data[1] + ", Role = " + data[3]);
+                    JOptionPane.showMessageDialog(null, "Found: Username = " + data[1] + ", Role = " + data[3]);
                     found = true;
                     break;
                 }
             }
-            if (!found) System.out.println("Employee not found.");
+            if (!found) JOptionPane.showMessageDialog(null, "Employee not found.");
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
     }
 
     private void deleteEmployee() {
-        System.out.print("Enter ID to delete: ");
-        String deleteId = scanner.nextLine();
+        String deleteId = JOptionPane.showInputDialog("Enter ID to delete: ");
         File inputFile = new File(EMPLOYEE_FILE);
-        File tempFile = new File("temp_employees.txt");
+        File tempFile = new File("data/temp.txt");
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(inputFile));
@@ -166,14 +128,12 @@ class Admin {
             if (inputFile.delete()) {
                 tempFile.renameTo(inputFile);
                 if (deleted)
-                    System.out.println("Employee deleted.");
+                    JOptionPane.showMessageDialog(null, "Employee deleted.");
                 else
-                    System.out.println("ID not found.");
+                    JOptionPane.showMessageDialog(null, "ID not found.");
             }
         } catch (IOException e) {
-            System.out.println("Error deleting employee: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error deleting employee: " + e.getMessage());
         }
     }
 }
-
-
