@@ -1,20 +1,18 @@
-import java.util.*;
 import java.io.*;
-import java.io.IOException;
-class Inventory {
+import java.util.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
-    private final String EMPLOYEE_FILE = "Data/employees.txt";
-    private final String PRODUCT_FILE = "Data/products.txt";
-    private final String DAMAGED_FILE = "Data/damaged.txt";
-    private final String NOTIFICATION_FILE = "Data/notifications.txt";
+class Inventory {
+    private final String EMPLOYEE_FILE = "employees.txt";
+    private final String PRODUCT_FILE = "products.txt";
+    private final String DAMAGED_FILE = "damaged.txt";
+    private final String NOTIFICATION_FILE = "notifications.txt";
 
     private Scanner scanner = new Scanner(System.in);
 
     public boolean login(String username, String password) {
-        try {
-            File file = new File(EMPLOYEE_FILE);
-            if (!file.exists()) return false;
-            Scanner reader = new Scanner(file);
+        try (Scanner reader = new Scanner(new File(EMPLOYEE_FILE))) {
             while (reader.hasNextLine()) {
                 String[] data = reader.nextLine().split(",");
                 if (data.length >= 4 && data[1].equals(username) && data[2].equals(password) && data[3].equals("inventory")) {
@@ -44,15 +42,15 @@ class Inventory {
             scanner.nextLine();
 
             switch (choice) {
-                case 1: addProduct(); break;
-                case 2: updateProduct(); break;
-                case 3: deleteProduct(); break;
-                case 4: listProducts(); break;
-                case 5: searchProduct(); break;
-                case 6: addDamaged(); break;
-                case 7: checkNotifications(); break;
-                case 8: System.out.println("Logging out..."); break;
-                default: System.out.println("Invalid option");
+                case 1 -> addProduct();
+                case 2 -> updateProduct();
+                case 3 -> deleteProduct();
+                case 4 -> listProducts();
+                case 5 -> searchProduct();
+                case 6 -> addDamaged();
+                case 7 -> checkNotifications();
+                case 8 -> System.out.println("Logging out...");
+                default -> System.out.println("Invalid option");
             }
         } while (choice != 8);
     }
@@ -60,39 +58,39 @@ class Inventory {
     private void addProduct() {
         try {
             System.out.print("Product ID: ");
-            String id = scanner.nextLine();
+            String id = scanner.nextLine().trim();
             System.out.print("Name: ");
-            String name = scanner.nextLine();
+            String name = scanner.nextLine().trim();
             System.out.print("Quantity: ");
-            int qty = scanner.nextInt();
-            scanner.nextLine();
+            int qty = Integer.parseInt(scanner.nextLine().trim());
             System.out.print("Expiry (YYYY-MM-DD): ");
-            String expiry = scanner.nextLine();
+            String expiry = scanner.nextLine().trim();
+
+            if (id.isEmpty() || name.isEmpty()) {
+                System.out.println("Product ID and Name cannot be empty.");
+                return;
+            }
 
             FileWriter fw = new FileWriter(PRODUCT_FILE, true);
             fw.write(id + "," + name + "," + qty + "," + expiry + "\n");
             fw.close();
             System.out.println("Product added.");
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Error adding product: " + e.getMessage());
         }
     }
 
     private void listProducts() {
-        try {
-            File file = new File(PRODUCT_FILE);
-            if (!file.exists()) {
-                System.out.println("No products available.");
-                return;
-            }
-            Scanner reader = new Scanner(file);
-            System.out.println("Product List:");
+        try (Scanner reader = new Scanner(new File(PRODUCT_FILE))) {
+            System.out.println("\n--- Product List ---");
             while (reader.hasNextLine()) {
                 String[] data = reader.nextLine().split(",");
-                System.out.println("ID: " + data[0] + ", Name: " + data[1] + ", Qty: " + data[2] + ", Expiry: " + data[3]);
+                if (data.length == 4) {
+                    System.out.println("ID: " + data[0] + ", Name: " + data[1] + ", Qty: " + data[2] + ", Expiry: " + data[3]);
+                }
             }
-        } catch (Exception e) {
-            System.out.println("Error listing products: " + e.getMessage());
+        } catch (FileNotFoundException e) {
+            System.out.println("No products available.");
         }
     }
 
@@ -100,15 +98,14 @@ class Inventory {
         System.out.print("Enter product ID to search: ");
         String searchId = scanner.nextLine();
         boolean found = false;
-        try {
-            File file = new File(PRODUCT_FILE);
-            if (!file.exists()) return;
-            Scanner reader = new Scanner(file);
+
+        try (Scanner reader = new Scanner(new File(PRODUCT_FILE))) {
             while (reader.hasNextLine()) {
                 String[] data = reader.nextLine().split(",");
                 if (data[0].equals(searchId)) {
                     System.out.println("FOUND -> Name: " + data[1] + ", Qty: " + data[2] + ", Expiry: " + data[3]);
                     found = true;
+                    break;
                 }
             }
             if (!found) System.out.println("Product not found.");
@@ -122,21 +119,19 @@ class Inventory {
         String updateId = scanner.nextLine();
         File inputFile = new File(PRODUCT_FILE);
         File tempFile = new File("temp_inventory.txt");
+        boolean updated = false;
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-            PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+
             String line;
-            boolean updated = false;
-
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data[0].equals(updateId)) {
                     System.out.print("New Name: ");
                     String name = scanner.nextLine();
                     System.out.print("New Quantity: ");
-                    int qty = scanner.nextInt();
-                    scanner.nextLine();
+                    int qty = Integer.parseInt(scanner.nextLine());
                     System.out.print("New Expiry (YYYY-MM-DD): ");
                     String expiry = scanner.nextLine();
                     writer.println(updateId + "," + name + "," + qty + "," + expiry);
@@ -145,20 +140,15 @@ class Inventory {
                     writer.println(line);
                 }
             }
-
-            reader.close();
-            writer.close();
-            inputFile.delete();
-            tempFile.renameTo(inputFile);
-
-            if (updated)
-                System.out.println("Product updated.");
-            else
-                System.out.println("Product ID not found.");
-
         } catch (IOException e) {
             System.out.println("Update error: " + e.getMessage());
+            return;
         }
+
+        inputFile.delete();
+        tempFile.renameTo(inputFile);
+
+        System.out.println(updated ? "Product updated." : "Product ID not found.");
     }
 
     private void deleteProduct() {
@@ -166,13 +156,12 @@ class Inventory {
         String deleteId = scanner.nextLine();
         File inputFile = new File(PRODUCT_FILE);
         File tempFile = new File("temp_inventory.txt");
+        boolean deleted = false;
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-            PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+
             String line;
-            boolean deleted = false;
-
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (!data[0].equals(deleteId)) {
@@ -181,20 +170,15 @@ class Inventory {
                     deleted = true;
                 }
             }
-
-            reader.close();
-            writer.close();
-            inputFile.delete();
-            tempFile.renameTo(inputFile);
-
-            if (deleted)
-                System.out.println("Product deleted.");
-            else
-                System.out.println("Product ID not found.");
-
         } catch (IOException e) {
             System.out.println("Delete error: " + e.getMessage());
+            return;
         }
+
+        inputFile.delete();
+        tempFile.renameTo(inputFile);
+
+        System.out.println(deleted ? "Product deleted." : "Product ID not found.");
     }
 
     private void addDamaged() {
@@ -214,31 +198,31 @@ class Inventory {
     }
 
     private void checkNotifications() {
-        try {
-            File file = new File(PRODUCT_FILE);
-            if (!file.exists()) {
-                System.out.println("No products to check.");
-                return;
-            }
+        try (Scanner reader = new Scanner(new File(PRODUCT_FILE));
+             PrintWriter notifier = new PrintWriter(new FileWriter(NOTIFICATION_FILE))) {
 
-            PrintWriter notifier = new PrintWriter(new FileWriter(NOTIFICATION_FILE));
-            Scanner reader = new Scanner(file);
             while (reader.hasNextLine()) {
                 String[] data = reader.nextLine().split(",");
                 int qty = Integer.parseInt(data[2]);
-                String expiry = data[3];
+                String expiryStr = data[3];
+
                 if (qty < 10) {
-                    notifier.println("\"Low stock alert: \" + data[1] + \" (\" + data[0] + \") has only \" + qty + \" units.\"");
+                    notifier.println("Low stock alert: " + data[1] + " (" + data[0] + ") has only " + qty + " units.");
                 }
 
-                if (expiry.compareTo("\"2025-01-01\"") < 0) {
-                        notifier.println("\"Expiry alert: \" + data[1] + \" (\" + data[0] + \") expiring soon on \" + expiry + \".\"");
+                try {
+                    LocalDate expiryDate = LocalDate.parse(expiryStr);
+                    if (expiryDate.isBefore(LocalDate.now().plusDays(30))) {
+                        notifier.println("Expiry alert: " + data[1] + " (" + data[0] + ") expiring soon on " + expiryDate + ".");
+                    }
+                } catch (DateTimeParseException e) {
+                    notifier.println("Invalid expiry format for product: " + data[1]);
+                }
             }
+
+            System.out.println("Notifications written to " + NOTIFICATION_FILE);
+        } catch (Exception e) {
+            System.out.println("Notification error: " + e.getMessage());
         }
-        notifier.close();
-        System.out.println("\"Notifications written to \" "+ NOTIFICATION_FILE);
-    } catch (Exception e) {
-        System.out.println("\"Notification error: \" "+ e.getMessage());
     }
-}
 }
