@@ -6,7 +6,7 @@ class Inventory {
     private final String EMPLOYEE_FILE = "Data/employees.txt";
     private final String PRODUCT_FILE = "Data/products.txt";
     private final String DAMAGED_FILE = "Data/damaged.txt";
-    private final String NOTIFICATION_FILE = "notifications.txt";
+    private final String NOTIFICATION_FILE = "Data/notifications.txt";
 
     private Scanner scanner = new Scanner(System.in);
 
