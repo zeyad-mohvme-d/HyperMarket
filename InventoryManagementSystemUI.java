@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class InventoryManagementSystemUI {
+public class InventoryManagementSystemUI{
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(InventoryManagementSystemUI::createAndShowGUI);

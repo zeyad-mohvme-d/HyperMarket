@@ -105,15 +105,15 @@ class Admin {
 
     private void deleteEmployee() {
         String deleteId = JOptionPane.showInputDialog("Enter ID to delete: ");
-        File inputFile = new File(EMPLOYEE_FILE);
+        File originalFile = new File("data/employees.txt");
         File tempFile = new File("data/temp.txt");
+        boolean deleted = false;
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            BufferedReader reader = new BufferedReader(new FileReader(originalFile));
             PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
 
             String line;
-            boolean deleted = false;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (!data[0].equals(deleteId)) {
@@ -123,17 +123,28 @@ class Admin {
                 }
             }
 
-            writer.close();
             reader.close();
-            if (inputFile.delete()) {
-                tempFile.renameTo(inputFile);
-                if (deleted)
+            writer.close();
+
+            // Let GC settle
+            reader = null;
+            writer = null;
+            System.gc();
+            Thread.sleep(100);
+
+            if (originalFile.delete()) {
+                if (tempFile.renameTo(originalFile)) {
                     JOptionPane.showMessageDialog(null, "Employee deleted.");
-                else
-                    JOptionPane.showMessageDialog(null, "ID not found.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to rename temp file.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed to delete original file: " + originalFile.getAbsolutePath());
             }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error deleting employee: " + e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
     }
+
+
 }
