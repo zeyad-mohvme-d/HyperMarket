@@ -5,11 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f909cbd1-c9f9-43e1-addf-fd86f7624bad" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/qodana.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin.java" beforeDir="false" afterPath="$PROJECT_DIR$/Admin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/InventoryManagment.java" beforeDir="false" afterPath="$PROJECT_DIR$/InventoryManagment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Admin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AdminPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dashboard.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/InventoryPanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LoginFrame.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +43,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Coverage&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
@@ -78,5 +79,8 @@
       <updated>1747146450093</updated>
     </task>
     <servers />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/HyperMarket$Main.ic" NAME="Main Coverage Results" MODIFIED="1747227376846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>
