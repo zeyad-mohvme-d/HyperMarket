@@ -105,7 +105,6 @@ class Admin {
         }
     }
 
-
     public void updateEmployee() {
         String targetId = JOptionPane.showInputDialog("Enter the ID of the employee to update:");
 
@@ -158,9 +157,6 @@ class Admin {
         }
     }
 
-
-
-
     private void deleteEmployee() {
         String deleteId = JOptionPane.showInputDialog("Enter ID to delete: ");
         File originalFile = new File("data/employees.txt");
@@ -203,6 +199,5 @@ class Admin {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
     }
-
 
 }

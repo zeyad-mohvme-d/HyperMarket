@@ -6,18 +6,15 @@ import java.util.*;
 class Sales {
     private final String EMPLOYEE_FILE = "Data/employees.txt";
     private final String PRODUCT_FILE = "Data/products.txt";
-    private final String ORDER_FILE = "Data/orders.txt";
-    private Scanner scanner = new Scanner(System.in);
 
     public boolean login(String username, String password) {
-        try {
-            File file = new File(EMPLOYEE_FILE);
-            if (!file.exists()) return false;
-
-            Scanner reader = new Scanner(file);
+        try (Scanner reader = new Scanner(new File(EMPLOYEE_FILE))) {
             while (reader.hasNextLine()) {
                 String[] data = reader.nextLine().split(",");
-                if (data.length >= 4 && data[1].equals(username) && data[2].equals(password) && data[3].equals("sales")) {
+                if (data.length >= 4 &&
+                        data[1].equals(username) &&
+                        data[2].equals(password) &&
+                        data[3].equals("sales")) {
                     return true;
                 }
             }
@@ -27,41 +24,33 @@ class Sales {
         return false;
     }
 
-    // Show Sales Menu with GUI buttons
     public void showSalesMenu(JFrame parentFrame) {
         JFrame salesFrame = new JFrame("Sales Menu");
         salesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         salesFrame.setSize(400, 300);
         salesFrame.setLocationRelativeTo(parentFrame);
 
-        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         JButton listProductsBtn = new JButton("List All Products");
         JButton searchProductBtn = new JButton("Search Product");
         JButton placeOrderBtn = new JButton("Place Order");
+        JButton confirmOrderBtn = new JButton("Confirm the Order");
         JButton cancelOrderBtn = new JButton("Cancel Order");
         JButton logoutBtn = new JButton("Logout");
 
-        // ✅ List products
         listProductsBtn.addActionListener(e -> listProducts(salesFrame));
-
-        // ✅ Search product
         searchProductBtn.addActionListener(e -> searchProduct(salesFrame));
-
-        // ✅ Place order (updates inventory and saves to orders.txt)
         placeOrderBtn.addActionListener(e -> placeOrder(salesFrame));
-
-        // ✅ Cancel order (optional, pass frame if needed)
+        confirmOrderBtn.addActionListener(e -> confirmOrder(salesFrame));
         cancelOrderBtn.addActionListener(e -> cancelOrder(salesFrame));
-
-        // ✅ Logout
         logoutBtn.addActionListener(e -> salesFrame.dispose());
 
-        // Add all buttons to panel
         panel.add(listProductsBtn);
         panel.add(searchProductBtn);
         panel.add(placeOrderBtn);
+        panel.add(confirmOrderBtn);
         panel.add(cancelOrderBtn);
         panel.add(logoutBtn);
 
@@ -69,148 +58,164 @@ class Sales {
         salesFrame.setVisible(true);
     }
 
-
-    // List all products (functionality)
     private void listProducts(JFrame frame) {
-        try {
-            File file = new File(PRODUCT_FILE);
-            if (!file.exists()) {
-                JOptionPane.showMessageDialog(frame, "No products available.");
-                return;
-            }
-            Scanner reader = new Scanner(file);
+        File file = new File(PRODUCT_FILE);
+        if (!file.exists()) {
+            JOptionPane.showMessageDialog(frame, "No products available.");
+            return;
+        }
+
+        try (Scanner reader = new Scanner(file)) {
             StringBuilder productList = new StringBuilder("=== Product List ===\n");
             while (reader.hasNextLine()) {
                 productList.append(reader.nextLine()).append("\n");
             }
             JOptionPane.showMessageDialog(frame, productList.toString());
-        } catch (Exception e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error reading products: " + e.getMessage());
         }
     }
 
-    // Search for products (functionality)
     private void searchProduct(JFrame frame) {
         String keyword = JOptionPane.showInputDialog(frame, "Enter keyword to search:");
-        if (keyword == null || keyword.isEmpty()) {
+        if (keyword == null || keyword.trim().isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Please enter a search keyword.");
             return;
         }
 
-        try {
-            File file = new File(PRODUCT_FILE);
-            if (!file.exists()) {
-                JOptionPane.showMessageDialog(frame, "No products available.");
-                return;
-            }
-            Scanner reader = new Scanner(file);
-            StringBuilder searchResults = new StringBuilder("=== Search Results ===\n");
+        File file = new File(PRODUCT_FILE);
+        if (!file.exists()) {
+            JOptionPane.showMessageDialog(frame, "No products available.");
+            return;
+        }
+
+        try (Scanner reader = new Scanner(file)) {
+            StringBuilder results = new StringBuilder("=== Search Results ===\n");
             boolean found = false;
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
                 if (line.toLowerCase().contains(keyword.toLowerCase())) {
-                    searchResults.append("MATCH: ").append(line).append("\n");
+                    results.append("MATCH: ").append(line).append("\n");
                     found = true;
                 }
             }
-            if (!found) {
-                JOptionPane.showMessageDialog(frame, "No matching products found.");
-            } else {
-                JOptionPane.showMessageDialog(frame, searchResults.toString());
-            }
-        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, found ? results.toString() : "No matching products found.");
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Error searching product: " + e.getMessage());
         }
     }
 
-    // Place order (functionality)
     public void placeOrder(JFrame frame) {
-        String orderId = JOptionPane.showInputDialog(frame, "Enter Order ID:");
-        String productId = JOptionPane.showInputDialog(frame, "Enter Product ID:");
-        int quantity;
         try {
-            quantity = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter Quantity:"));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(frame, "Invalid quantity.");
-            return;
-        }
-        String customer = JOptionPane.showInputDialog(frame, "Enter Customer Name:");
+            String orderId = JOptionPane.showInputDialog(frame, "Enter Order ID:");
+            String productId = JOptionPane.showInputDialog(frame, "Enter Product ID:");
+            int quantity = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter Quantity:"));
+            String customer = JOptionPane.showInputDialog(frame, "Enter Customer Name:");
 
-        File productFile = new File("Data/products.txt"); // adjust to "data/products.txt" if needed
-        File tempProductFile = new File("Data/temp_products.txt");
-        boolean orderPlaced = false;
-
-        try (
-                BufferedReader reader = new BufferedReader(new FileReader(productFile));
-                PrintWriter tempWriter = new PrintWriter(new FileWriter(tempProductFile));
-                PrintWriter orderWriter = new PrintWriter(new FileWriter("orders.txt", true))  // append mode
-        ) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-
-                if (data.length < 4) {
-                    tempWriter.println(line); // skip broken lines safely
-                    continue;
-                }
-
-                String id = data[0].trim();
-                String name = data[1].trim();
-                int availableQty = Integer.parseInt(data[2].trim());
-                String expiry = data[3].trim();
-
-                if (id.equals(productId)) {
-                    if (availableQty >= quantity) {
-                        int newQty = availableQty - quantity;
-                        tempWriter.println(id + "," + name + "," + newQty + "," + expiry);
-                        orderWriter.println(orderId + "," + id + "," + quantity + "," + customer);
-                        orderPlaced = true;
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Only " + availableQty + " in stock. Cannot place order.");
-                        tempWriter.println(line); // write original line unchanged
-                    }
-                } else {
-                    tempWriter.println(line); // keep other products unchanged
-                }
+            try (PrintWriter writer = new PrintWriter(new FileWriter("Data/Order.txt"))) {
+                writer.println(orderId + "," + productId + "," + quantity + "," + customer);
             }
 
-        } catch (IOException | NumberFormatException e) {
-            JOptionPane.showMessageDialog(frame, "Error placing order: " + e.getMessage());
-            return;
-        }
-
-        // GC + slight delay to release locks
-        System.gc();
-        try { Thread.sleep(100); } catch (InterruptedException ignored) {}
-
-        // Debug logs
-        boolean deleted = productFile.delete();
-        boolean renamed = tempProductFile.renameTo(productFile);
-        System.out.println("Deleted products.txt: " + deleted);
-        System.out.println("Renamed temp_products.txt: " + renamed);
-        System.out.println("Path: " + productFile.getAbsolutePath());
-
-        // Final result
-        if (deleted && renamed) {
-            if (orderPlaced) {
-                JOptionPane.showMessageDialog(frame, "Order placed successfully and inventory updated.");
-            } else {
-                JOptionPane.showMessageDialog(frame, "Order failed. Product not found or insufficient stock.");
-            }
-        } else {
-            JOptionPane.showMessageDialog(frame, "Error updating inventory file.");
+            JOptionPane.showMessageDialog(frame, "Order saved temporarily.\nPlease confirm to finalize.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Error creating order: " + e.getMessage());
         }
     }
 
+    public void confirmOrder(JFrame frame) {
+        File tempOrder = new File("Data/Order.txt");
+        if (!tempOrder.exists()) {
+            JOptionPane.showMessageDialog(frame, "No pending order to confirm.");
+            return;
+        }
 
+        String orderId = null, productId = null, customer = null;
+        int quantity = 0;
 
+        try (Scanner reader = new Scanner(tempOrder)) {
+            if (reader.hasNextLine()) {
+                String[] data = reader.nextLine().split(",");
+                if (data.length >= 4) {
+                    orderId = data[0].trim();
+                    productId = data[1].trim();
+                    quantity = Integer.parseInt(data[2].trim());
+                    customer = data[3].trim();
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Failed to read Order.txt: " + e.getMessage());
+            return;
+        }
 
-    // Cancel order (functionality)
+        File productFile = new File(PRODUCT_FILE);
+        File tempProductFile = new File("Data/temp_products.txt");
+        boolean orderConfirmed = false;
+
+        try (
+                BufferedReader productReader = new BufferedReader(new FileReader(productFile));
+                PrintWriter productWriter = new PrintWriter(new FileWriter(tempProductFile));
+                PrintWriter orderWriter = new PrintWriter(new FileWriter("Data/orders.txt", true))
+        ) {
+            String line;
+            while ((line = productReader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data[0].trim().equals(productId)) {
+                    int availableQty = Integer.parseInt(data[2].trim());
+                    if (availableQty >= quantity) {
+                        productWriter.println(data[0] + "," + data[1] + "," + (availableQty - quantity) + "," + data[3]);
+                        orderWriter.println(orderId + "," + productId + "," + quantity + "," + customer);
+                        orderConfirmed = true;
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Insufficient stock.");
+                        productWriter.println(line);
+                    }
+                } else {
+                    productWriter.println(line);
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Error updating inventory: " + e.getMessage());
+            return;
+        }
+
+        boolean updated = productFile.delete() && tempProductFile.renameTo(productFile);
+        if (updated && orderConfirmed) {
+            tempOrder.delete();
+            JOptionPane.showMessageDialog(frame, "Order confirmed and inventory updated.");
+        } else if (!orderConfirmed) {
+            JOptionPane.showMessageDialog(frame, "Order not confirmed due to low stock.");
+        } else {
+            JOptionPane.showMessageDialog(frame, "Error finalizing the order.");
+        }
+    }
+
     public void cancelOrder(JFrame frame) {
         String cancelId = JOptionPane.showInputDialog(frame, "Enter Order ID to cancel:");
+        if (cancelId == null || cancelId.trim().isEmpty()) return;
+
+        File pendingOrder = new File("Data/Order.txt");
+        if (pendingOrder.exists()) {
+            try (Scanner scanner = new Scanner(pendingOrder)) {
+                if (scanner.hasNextLine()) {
+                    String[] data = scanner.nextLine().split(",");
+                    if (data.length >= 1 && data[0].trim().equals(cancelId.trim())) {
+                        System.gc();
+                        try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+                        if (pendingOrder.delete()) {
+                            JOptionPane.showMessageDialog(frame, "Pending (unconfirmed) order canceled successfully.");
+                            return;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "Error checking pending order: " + e.getMessage());
+                return;
+            }
+        }
+
         File orderFile = new File("Data/orders.txt");
         File tempOrderFile = new File("Data/temp_orders.txt");
-        File productFile = new File("Data/products.txt");
+        File productFile = new File(PRODUCT_FILE);
         File tempProductFile = new File("Data/temp_products.txt");
 
         boolean orderFound = false;
@@ -225,13 +230,11 @@ class Sales {
             while ((line = orderReader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data[0].equals(cancelId)) {
-                    // This is the order to cancel
                     canceledProductId = data[1];
                     canceledQuantity = Integer.parseInt(data[2]);
                     orderFound = true;
-                    // Do not write this order (we're canceling it)
                 } else {
-                    orderWriter.println(line); // keep other orders
+                    orderWriter.println(line);
                 }
             }
         } catch (IOException e) {
@@ -240,12 +243,11 @@ class Sales {
         }
 
         if (!orderFound) {
-            tempOrderFile.delete(); // cleanup
+            tempOrderFile.delete();
             JOptionPane.showMessageDialog(frame, "Order ID not found.");
             return;
         }
 
-        // Step 2: Add canceledQuantity back to products.txt
         try (
                 BufferedReader productReader = new BufferedReader(new FileReader(productFile));
                 PrintWriter productWriter = new PrintWriter(new FileWriter(tempProductFile))
@@ -254,19 +256,17 @@ class Sales {
             while ((line = productReader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data[0].equals(canceledProductId)) {
-                    int currentQty = Integer.parseInt(data[2]);
-                    int updatedQty = currentQty + canceledQuantity;
+                    int updatedQty = Integer.parseInt(data[2]) + canceledQuantity;
                     productWriter.println(data[0] + "," + data[1] + "," + updatedQty + "," + data[3]);
                 } else {
                     productWriter.println(line);
                 }
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error updating inventory: " + e.getMessage());
+            JOptionPane.showMessageDialog(frame, "Error restoring inventory: " + e.getMessage());
             return;
         }
 
-        // Final step: Replace original files with updated versions
         boolean orderDeleted = orderFile.delete() && tempOrderFile.renameTo(orderFile);
         boolean productUpdated = productFile.delete() && tempProductFile.renameTo(productFile);
 
@@ -276,5 +276,5 @@ class Sales {
             JOptionPane.showMessageDialog(frame, "Error finalizing cancellation.");
         }
     }
-
 }
+
