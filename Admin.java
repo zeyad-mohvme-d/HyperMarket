@@ -45,7 +45,7 @@ class Admin {
                 case 6: JOptionPane.showMessageDialog(null, "Logging out..."); break;
                 default: JOptionPane.showMessageDialog(null, "Invalid option");
             }
-        } while (choice != 5);
+        } while (choice != 6);
     }
 
     private void addEmployee() {
