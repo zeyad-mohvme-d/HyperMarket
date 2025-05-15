@@ -206,44 +206,75 @@ class Sales {
 
 
     // Cancel order (functionality)
-    private void cancelOrder(JFrame frame) {
-        String orderIdToCancel = JOptionPane.showInputDialog(frame, "Enter Order ID to cancel:");
-        if (orderIdToCancel == null || orderIdToCancel.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Please enter an Order ID.");
-            return;
-        }
+    public void cancelOrder(JFrame frame) {
+        String cancelId = JOptionPane.showInputDialog(frame, "Enter Order ID to cancel:");
+        File orderFile = new File("Data/orders.txt");
+        File tempOrderFile = new File("Data/temp_orders.txt");
+        File productFile = new File("Data/products.txt");
+        File tempProductFile = new File("Data/temp_products.txt");
 
-        File inputFile = new File(ORDER_FILE);
-        File tempFile = new File("temp_orders.txt");
+        boolean orderFound = false;
+        String canceledProductId = null;
+        int canceledQuantity = 0;
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-            PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
+        try (
+                BufferedReader orderReader = new BufferedReader(new FileReader(orderFile));
+                PrintWriter orderWriter = new PrintWriter(new FileWriter(tempOrderFile))
+        ) {
             String line;
-            boolean found = false;
-
-            while ((line = reader.readLine()) != null) {
+            while ((line = orderReader.readLine()) != null) {
                 String[] data = line.split(",");
-                if (!data[0].equals(orderIdToCancel)) {
-                    writer.println(line);
+                if (data[0].equals(cancelId)) {
+                    // This is the order to cancel
+                    canceledProductId = data[1];
+                    canceledQuantity = Integer.parseInt(data[2]);
+                    orderFound = true;
+                    // Do not write this order (we're canceling it)
                 } else {
-                    found = true;
-                }
-            }
-
-            reader.close();
-            writer.close();
-
-            if (inputFile.delete()) {
-                tempFile.renameTo(inputFile);
-                if (found) {
-                    JOptionPane.showMessageDialog(frame, "Order canceled.");
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Order ID not found.");
+                    orderWriter.println(line); // keep other orders
                 }
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Error canceling order: " + e.getMessage());
+            JOptionPane.showMessageDialog(frame, "Error reading orders file: " + e.getMessage());
+            return;
+        }
+
+        if (!orderFound) {
+            tempOrderFile.delete(); // cleanup
+            JOptionPane.showMessageDialog(frame, "Order ID not found.");
+            return;
+        }
+
+        // Step 2: Add canceledQuantity back to products.txt
+        try (
+                BufferedReader productReader = new BufferedReader(new FileReader(productFile));
+                PrintWriter productWriter = new PrintWriter(new FileWriter(tempProductFile))
+        ) {
+            String line;
+            while ((line = productReader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data[0].equals(canceledProductId)) {
+                    int currentQty = Integer.parseInt(data[2]);
+                    int updatedQty = currentQty + canceledQuantity;
+                    productWriter.println(data[0] + "," + data[1] + "," + updatedQty + "," + data[3]);
+                } else {
+                    productWriter.println(line);
+                }
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Error updating inventory: " + e.getMessage());
+            return;
+        }
+
+        // Final step: Replace original files with updated versions
+        boolean orderDeleted = orderFile.delete() && tempOrderFile.renameTo(orderFile);
+        boolean productUpdated = productFile.delete() && tempProductFile.renameTo(productFile);
+
+        if (orderDeleted && productUpdated) {
+            JOptionPane.showMessageDialog(frame, "Order canceled and inventory restored.");
+        } else {
+            JOptionPane.showMessageDialog(frame, "Error finalizing cancellation.");
         }
     }
+
 }

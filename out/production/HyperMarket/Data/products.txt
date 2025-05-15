@@ -5,6 +5,6 @@ Product4,Toys,30,In Stock
 Product5,Books,150,Out of Stock
 10,pizza,2,5/5/5/
 890,WellMan,30,2026/9/12
-999,Winston,100,2030-12-12
+999,Winston,14,2030-12-12
 65,RedBull,99,2034-2-2
 777,SSS,1,2020
