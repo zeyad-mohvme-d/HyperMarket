@@ -6,3 +6,12 @@
 ⚠ Low stock: SSS (ID: 777) - Qty: 1
 ⚠ Low stock: pizza (ID: 10) - Qty: 2
 ⚠ Low stock: SSS (ID: 777) - Qty: 1
+⚠ Low stock: pizza (ID: 10) - Qty: 2
+⚠ Low stock: SSS (ID: 777) - Qty: 1
+⚠ Low stock: pizza (ID: 10) - Qty: 2
+⚠ Low stock: SSS (ID: 777) - Qty: 1
+⚠ Low stock: pizza (ID: 10) - Qty: 2
+⚠ Low stock: SSS (ID: 777) - Qty: 1
+⚠ Low stock: SSS (ID: 777) - Qty: 1
+⚠ Low stock: SSS (ID: 777) - Qty: 1
+⚠ Low stock: SSS (ID: 777) - Qty: 1

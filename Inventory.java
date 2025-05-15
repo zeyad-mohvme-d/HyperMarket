@@ -34,20 +34,36 @@ public class Inventory {
                     "5. Search Product\n" +
                     "6. Notifications\n" +
                     "7. Logout\n" +
-                    "Choose: ";;
+                    "Choose: ";
+            ;
             choice = Integer.parseInt(JOptionPane.showInputDialog(options));
 
             switch (choice) {
-                case 1: addProduct(); break;  // Add Product
-                case 2: updateProduct(); break;  // Update Product
-                case 3: deleteProduct(); break;  // Delete Product
-                case 4: listProducts(); break;  // List Products
-                case 5: searchProduct(); break;
-                case 6: notifyLowStock(); break;// Search Product
-                case 7: JOptionPane.showMessageDialog(null, "Logging out..."); break; // Logout
-                default: JOptionPane.showMessageDialog(null, "Invalid option");
+                case 1:
+                    addProduct();
+                    break;  // Add Product
+                case 2:
+                    updateProduct();
+                    break;  // Update Product
+                case 3:
+                    deleteProduct();
+                    break;  // Delete Product
+                case 4:
+                    listProducts();
+                    break;  // List Products
+                case 5:
+                    searchProduct();
+                    break;
+                case 6:
+                    notifyLowStock();
+                    break;// Search Product
+                case 7:
+                    JOptionPane.showMessageDialog(null, "Logging out...");
+                    break; // Logout
+                default:
+                    JOptionPane.showMessageDialog(null, "Invalid option");
             }
-        }while(choice != 7);
+        } while (choice != 7);
     }
 
     private void addProduct() {
@@ -171,11 +187,19 @@ public class Inventory {
 
         JOptionPane.showMessageDialog(null, deleted ? "Product deleted." : "Product ID not found.");
     }
+
     public void notifyLowStock() {
         File productFile = new File("Data/products.txt");
         File notifyFile = new File("Data/notifications.txt");
+        File offerFile = new File("Data/offers.txt");
+        File offerFlagFile = new File("Data/offers_shown.flag");  // ✅ track shown offers
 
         boolean anyLowStock = false;
+        boolean offerAppended = false;
+
+        StringBuilder fullNotification = new StringBuilder();
+
+        // 🔸 Low stock section
         StringBuilder lowStockSummary = new StringBuilder("⚠ Low Stock Items:\n");
 
         try (
@@ -186,7 +210,6 @@ public class Inventory {
                 String line = reader.nextLine();
                 String[] data = line.split(",");
 
-                // Expected format: ID, Name, Qty, Expiry
                 if (data.length >= 3) {
                     String productId = data[0].trim();
                     String productName = data[1].trim();
@@ -208,9 +231,30 @@ public class Inventory {
             }
 
             if (anyLowStock) {
-                JOptionPane.showMessageDialog(null, lowStockSummary.toString(), "Low Stock Alert", JOptionPane.WARNING_MESSAGE);
+                fullNotification.append(lowStockSummary).append("\n");
+            }
+
+            // 🔸 One-time offer from Marketing
+            if (offerFile.exists() && !offerFlagFile.exists()) {
+                fullNotification.append("🎯 Special Offer from Marketing:\n");
+
+                try (Scanner offerReader = new Scanner(offerFile)) {
+                    while (offerReader.hasNextLine()) {
+                        String offerLine = offerReader.nextLine();
+                        fullNotification.append("- ").append(offerLine).append("\n");
+                    }
+                    offerFlagFile.createNewFile();  // mark offer as shown
+                    offerAppended = true;
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(null, "Error reading offers.txt: " + e.getMessage());
+                }
+            }
+
+            // Final notification display
+            if (anyLowStock || offerAppended) {
+                JOptionPane.showMessageDialog(null, fullNotification.toString(), "📢 Notifications", JOptionPane.INFORMATION_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(null, "No low stock products found.");
+                JOptionPane.showMessageDialog(null, "No notifications.");
             }
 
         } catch (FileNotFoundException e) {
@@ -219,5 +263,4 @@ public class Inventory {
             JOptionPane.showMessageDialog(null, "Error writing to notifications.txt: " + e.getMessage());
         }
     }
-
 }
