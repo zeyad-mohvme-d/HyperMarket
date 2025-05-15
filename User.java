@@ -166,9 +166,12 @@ public class User {
         }
 
         if (updated) {
+            // Release locks
+            System.gc();
+            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+
             if (!inputFile.delete()) {
-                System.out.println("Could not delete original file. Maybe it's open in another program?");
-                System.out.println("File absolute path: " + inputFile.getAbsolutePath());
+                System.out.println("Could not delete original file. File: " + inputFile.getAbsolutePath());
                 return false;
             }
             if (!tempFile.renameTo(inputFile)) {
