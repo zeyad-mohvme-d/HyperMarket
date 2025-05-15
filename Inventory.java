@@ -24,19 +24,30 @@ public class Inventory {
     }
 
     public void inventoryMenu() {
-        String[] options = { "Add Product", "Update Product", "Delete Product", "List Products", "Search Product", "Logout" };
-        int choice = JOptionPane.showOptionDialog(null, "Choose an option", "Inventory Menu",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+        int choice;
+        do {
+            String options = "\n--- Inventory Panel ---\n" +
+                    "1. Add Product\n" +
+                    "2. Update Product\n" +
+                    "3. Delete Product\n" +
+                    "4. List Products\n" +
+                    "5. Search Product\n" +
+                    "6. Notifications\n" +
+                    "7. Logout\n" +
+                    "Choose: ";;
+            choice = Integer.parseInt(JOptionPane.showInputDialog(options));
 
-        switch (choice) {
-            case 0 -> addProduct();  // Add Product
-            case 1 -> updateProduct();  // Update Product
-            case 2 -> deleteProduct();  // Delete Product
-            case 3 -> listProducts();  // List Products
-            case 4 -> searchProduct();  // Search Product
-            case 5 -> JOptionPane.showMessageDialog(null, "Logging out...");  // Logout
-            default -> JOptionPane.showMessageDialog(null, "Invalid option");
-        }
+            switch (choice) {
+                case 1: addProduct(); break;  // Add Product
+                case 2: updateProduct(); break;  // Update Product
+                case 3: deleteProduct(); break;  // Delete Product
+                case 4: listProducts(); break;  // List Products
+                case 5: searchProduct(); break;
+                case 6: notifyLowStock(); break;// Search Product
+                case 7: JOptionPane.showMessageDialog(null, "Logging out..."); break; // Logout
+                default: JOptionPane.showMessageDialog(null, "Invalid option");
+            }
+        }while(choice != 7);
     }
 
     private void addProduct() {
@@ -159,5 +170,40 @@ public class Inventory {
         tempFile.renameTo(inputFile);
 
         JOptionPane.showMessageDialog(null, deleted ? "Product deleted." : "Product ID not found.");
+    }
+    public void notifyLowStock() {
+        File productFile = new File("Data/products.txt");
+        File notifyFile = new File("Data/notifications.txt");
+
+        try (Scanner reader = new Scanner(productFile);
+             PrintWriter writer = new PrintWriter(new FileWriter(notifyFile, true))) {  // append mode
+
+            boolean anyLowStock = false;
+
+            while (reader.hasNextLine()) {
+                String[] data = reader.nextLine().split(",");
+                if (data.length >= 3) {
+                    String productId = data[0];
+                    String productName = data[1];
+                    int quantity = Integer.parseInt(data[2]);
+
+                    if (quantity < 3) {
+                        writer.println("⚠ Low stock alert for product [" + productName + "] (ID: " + productId + ") - Qty: " + quantity);
+                        anyLowStock = true;
+                    }
+                }
+            }
+
+            if (anyLowStock) {
+                JOptionPane.showMessageDialog(null, "Low stock notifications have been written to notifications.txt");
+            } else {
+                JOptionPane.showMessageDialog(null, "No low stock products found.");
+            }
+
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "products.txt not found.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error writing to notifications.txt: " + e.getMessage());
+        }
     }
 }
