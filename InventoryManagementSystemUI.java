@@ -73,7 +73,7 @@ public class InventoryManagementSystemUI {
             String password = JOptionPane.showInputDialog(frame, "Enter Sales Staff Password:");
             Sales sales = new Sales();
             if (sales.login(username, password)) {
-                sales.showSalesMenu(frame);
+                sales.showSalesMenu(frame);  // ✅ PERFECT
             } else {
                 JOptionPane.showMessageDialog(frame, "Invalid credentials.");
             }

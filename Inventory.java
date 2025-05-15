@@ -122,11 +122,11 @@ public class Inventory {
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data[0].equals(updateId)) {
-                    String name = JOptionPane.showInputDialog("New Name:");
-                    String qtyStr = JOptionPane.showInputDialog("New Quantity:");
+                    String oldName = data[1];  // Keep the old name
+                    String qtyStr = JOptionPane.showInputDialog("New Quantity:", data[2]); // Show old value by default
                     int qty = Integer.parseInt(qtyStr);
-                    String expiry = JOptionPane.showInputDialog("New Expiry (YYYY-MM-DD):");
-                    writer.println(updateId + "," + name + "," + qty + "," + expiry);
+                    String expiry = JOptionPane.showInputDialog("New Expiry (YYYY-MM-DD):", data[3]); // Show old expiry
+                    writer.println(updateId + "," + oldName + "," + qty + "," + expiry);
                     updated = true;
                 } else {
                     writer.println(line);
@@ -175,27 +175,40 @@ public class Inventory {
         File productFile = new File("Data/products.txt");
         File notifyFile = new File("Data/notifications.txt");
 
-        try (Scanner reader = new Scanner(productFile);
-             PrintWriter writer = new PrintWriter(new FileWriter(notifyFile, true))) {  // append mode
+        boolean anyLowStock = false;
+        StringBuilder lowStockSummary = new StringBuilder("⚠ Low Stock Items:\n");
 
-            boolean anyLowStock = false;
-
+        try (
+                Scanner reader = new Scanner(productFile);
+                PrintWriter writer = new PrintWriter(new FileWriter(notifyFile, true)) // Append mode
+        ) {
             while (reader.hasNextLine()) {
-                String[] data = reader.nextLine().split(",");
+                String line = reader.nextLine();
+                String[] data = line.split(",");
+
+                // Expected format: ID, Name, Qty, Expiry
                 if (data.length >= 3) {
-                    String productId = data[0];
-                    String productName = data[1];
-                    int quantity = Integer.parseInt(data[2]);
+                    String productId = data[0].trim();
+                    String productName = data[1].trim();
+                    int quantity;
+
+                    try {
+                        quantity = Integer.parseInt(data[2].trim());
+                    } catch (NumberFormatException e) {
+                        continue; // skip invalid lines
+                    }
 
                     if (quantity < 3) {
-                        writer.println("⚠ Low stock alert for product [" + productName + "] (ID: " + productId + ") - Qty: " + quantity);
+                        String msg = productName + " (ID: " + productId + ") - Qty: " + quantity;
+                        writer.println("⚠ Low stock: " + msg);
+                        lowStockSummary.append(msg).append("\n");
                         anyLowStock = true;
                     }
                 }
             }
 
             if (anyLowStock) {
-                JOptionPane.showMessageDialog(null, "Low stock notifications have been written to notifications.txt");
+                JOptionPane.showMessageDialog(null, lowStockSummary.toString(), "Low Stock Alert", JOptionPane.WARNING_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "No low stock products found.");
             }
@@ -206,4 +219,5 @@ public class Inventory {
             JOptionPane.showMessageDialog(null, "Error writing to notifications.txt: " + e.getMessage());
         }
     }
+
 }

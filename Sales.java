@@ -34,8 +34,8 @@ class Sales {
         salesFrame.setSize(400, 300);
         salesFrame.setLocationRelativeTo(parentFrame);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         JButton listProductsBtn = new JButton("List All Products");
         JButton searchProductBtn = new JButton("Search Product");
@@ -43,22 +43,22 @@ class Sales {
         JButton cancelOrderBtn = new JButton("Cancel Order");
         JButton logoutBtn = new JButton("Logout");
 
-        // List products button action
+        // ✅ List products
         listProductsBtn.addActionListener(e -> listProducts(salesFrame));
 
-        // Search product button action
+        // ✅ Search product
         searchProductBtn.addActionListener(e -> searchProduct(salesFrame));
 
-        // Place order button action
+        // ✅ Place order (updates inventory and saves to orders.txt)
         placeOrderBtn.addActionListener(e -> placeOrder(salesFrame));
 
-        // Cancel order button action
+        // ✅ Cancel order (optional, pass frame if needed)
         cancelOrderBtn.addActionListener(e -> cancelOrder(salesFrame));
 
-        // Logout button action
+        // ✅ Logout
         logoutBtn.addActionListener(e -> salesFrame.dispose());
 
-        // Add buttons to panel
+        // Add all buttons to panel
         panel.add(listProductsBtn);
         panel.add(searchProductBtn);
         panel.add(placeOrderBtn);
@@ -68,6 +68,7 @@ class Sales {
         salesFrame.add(panel);
         salesFrame.setVisible(true);
     }
+
 
     // List all products (functionality)
     private void listProducts(JFrame frame) {
@@ -123,37 +124,86 @@ class Sales {
     }
 
     // Place order (functionality)
-    private void placeOrder(JFrame frame) {
-        JTextField orderIdField = new JTextField();
-        JTextField productIdField = new JTextField();
-        JTextField quantityField = new JTextField();
-        JTextField customerField = new JTextField();
+    public void placeOrder(JFrame frame) {
+        String orderId = JOptionPane.showInputDialog(frame, "Enter Order ID:");
+        String productId = JOptionPane.showInputDialog(frame, "Enter Product ID:");
+        int quantity;
+        try {
+            quantity = Integer.parseInt(JOptionPane.showInputDialog(frame, "Enter Quantity:"));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame, "Invalid quantity.");
+            return;
+        }
+        String customer = JOptionPane.showInputDialog(frame, "Enter Customer Name:");
 
-        Object[] message = {
-                "Order ID:", orderIdField,
-                "Product ID:", productIdField,
-                "Quantity:", quantityField,
-                "Customer Name:", customerField
-        };
+        File productFile = new File("Data/products.txt"); // adjust to "data/products.txt" if needed
+        File tempProductFile = new File("Data/temp_products.txt");
+        boolean orderPlaced = false;
 
-        int option = JOptionPane.showConfirmDialog(frame, message, "Place Order", JOptionPane.OK_CANCEL_OPTION);
-        if (option == JOptionPane.OK_OPTION) {
-            try {
-                String orderId = orderIdField.getText();
-                String productId = productIdField.getText();
-                int quantity = Integer.parseInt(quantityField.getText());
-                String customer = customerField.getText();
+        try (
+                BufferedReader reader = new BufferedReader(new FileReader(productFile));
+                PrintWriter tempWriter = new PrintWriter(new FileWriter(tempProductFile));
+                PrintWriter orderWriter = new PrintWriter(new FileWriter("orders.txt", true))  // append mode
+        ) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
 
-                FileWriter fw = new FileWriter(ORDER_FILE, true);
-                fw.write(orderId + "," + productId + "," + quantity + "," + customer + "\n");
-                fw.close();
+                if (data.length < 4) {
+                    tempWriter.println(line); // skip broken lines safely
+                    continue;
+                }
 
-                JOptionPane.showMessageDialog(frame, "Order placed successfully.");
-            } catch (IOException | NumberFormatException e) {
-                JOptionPane.showMessageDialog(frame, "Error placing order: " + e.getMessage());
+                String id = data[0].trim();
+                String name = data[1].trim();
+                int availableQty = Integer.parseInt(data[2].trim());
+                String expiry = data[3].trim();
+
+                if (id.equals(productId)) {
+                    if (availableQty >= quantity) {
+                        int newQty = availableQty - quantity;
+                        tempWriter.println(id + "," + name + "," + newQty + "," + expiry);
+                        orderWriter.println(orderId + "," + id + "," + quantity + "," + customer);
+                        orderPlaced = true;
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Only " + availableQty + " in stock. Cannot place order.");
+                        tempWriter.println(line); // write original line unchanged
+                    }
+                } else {
+                    tempWriter.println(line); // keep other products unchanged
+                }
             }
+
+        } catch (IOException | NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame, "Error placing order: " + e.getMessage());
+            return;
+        }
+
+        // GC + slight delay to release locks
+        System.gc();
+        try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+
+        // Debug logs
+        boolean deleted = productFile.delete();
+        boolean renamed = tempProductFile.renameTo(productFile);
+        System.out.println("Deleted products.txt: " + deleted);
+        System.out.println("Renamed temp_products.txt: " + renamed);
+        System.out.println("Path: " + productFile.getAbsolutePath());
+
+        // Final result
+        if (deleted && renamed) {
+            if (orderPlaced) {
+                JOptionPane.showMessageDialog(frame, "Order placed successfully and inventory updated.");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Order failed. Product not found or insufficient stock.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(frame, "Error updating inventory file.");
         }
     }
+
+
+
 
     // Cancel order (functionality)
     private void cancelOrder(JFrame frame) {
