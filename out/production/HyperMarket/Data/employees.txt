@@ -1,4 +1,4 @@
-1,sadek,123,admin
+1,sadekk,1234,admin
 50,ahmed,321,sales
 10,bobo,123,marketing
 11,zozo,123,inventory

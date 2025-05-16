@@ -1,11 +1,6 @@
-Product1,Electronics,100,In Stock
-Product2,Clothing,50,Out of Stock
-Product3,Food,200,In Stock
-Product4,Toys,30,In Stock
-Product5,Books,150,Out of Stock
 10,pizza,20,2005/5/5
-890,WellMan,30,2026/9/12
 999,Winston,9,2030-12-12
 65,RedBull,99,2034-2-2
 777,SSS,10,2020
 65,Water,12,2020
+890,Merit,500,2027-8-3
