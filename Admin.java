@@ -43,7 +43,7 @@ class Admin {
                 case 3: searchEmployee(); break;
                 case 4: deleteEmployee(); break;
                 case 5: updateEmployee(); break;
-                case 6: changeAdminCredentials(); break;
+                case 6: changeAdminUserNamePassword(); break;
                 case 7: JOptionPane.showMessageDialog(null, "Logging out..."); break;
                 default: JOptionPane.showMessageDialog(null, "Invalid option");
             }
@@ -55,7 +55,7 @@ class Admin {
             String id = JOptionPane.showInputDialog("Enter ID: ");
             String user = JOptionPane.showInputDialog("Enter Username: ");
             String pass = JOptionPane.showInputDialog("Enter Password: ");
-            String role = JOptionPane.showInputDialog("Enter Role (admin/marketing/inventory/sales/user): ");
+            String role = JOptionPane.showInputDialog("Enter Role (admin/marketing/inventory/sales/): ");
 
             FileWriter fw = new FileWriter(EMPLOYEE_FILE, true);
             fw.write(id + "," + user + "," + pass + "," + role + "\n");
@@ -197,7 +197,7 @@ class Admin {
         }
     }
 
-    public void changeAdminCredentials() {
+    public void changeAdminUserNamePassword() {
         String currentUser = JOptionPane.showInputDialog("Enter current username:");
         String currentPass = JOptionPane.showInputDialog("Enter current password:");
 
