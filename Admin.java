@@ -31,8 +31,9 @@ class Admin {
                     "2. List Employees\n" +
                     "3. Search Employee\n" +
                     "4. Delete Employee\n" +
-                    "5. Update Employee\n"+
-                    "6. Logout\n" +
+                    "5. Update Employee\n" +
+                    "6. Change Username/Password\n" +
+                    "7. Logout\n" +
                     "Choose: ";
             choice = Integer.parseInt(JOptionPane.showInputDialog(options));
 
@@ -42,10 +43,11 @@ class Admin {
                 case 3: searchEmployee(); break;
                 case 4: deleteEmployee(); break;
                 case 5: updateEmployee(); break;
-                case 6: JOptionPane.showMessageDialog(null, "Logging out..."); break;
+                case 6: changeAdminCredentials(); break;
+                case 7: JOptionPane.showMessageDialog(null, "Logging out..."); break;
                 default: JOptionPane.showMessageDialog(null, "Invalid option");
             }
-        } while (choice != 6);
+        } while (choice != 7);
     }
 
     private void addEmployee() {
@@ -120,15 +122,13 @@ class Admin {
                 String[] data = line.split(",");
 
                 if (data[0].equals(targetId)) {
-                    // Prompt for new ID and role
                     String newId = JOptionPane.showInputDialog("Enter new ID:", data[0]);
                     String newRole = JOptionPane.showInputDialog("Enter new role (admin/marketing/inventory/sales):", data[3]);
 
-                    // Update line with new ID and role (keep username and password unchanged)
                     writer.println(newId + "," + data[1] + "," + data[2] + "," + newRole);
                     updated = true;
                 } else {
-                    writer.println(line); // Keep unchanged
+                    writer.println(line);
                 }
             }
 
@@ -138,7 +138,7 @@ class Admin {
         }
 
         if (updated) {
-            System.gc();  // Ensure file is unlocked
+            System.gc();
             try { Thread.sleep(100); } catch (InterruptedException ignored) {}
 
             if (!inputFile.delete()) {
@@ -180,9 +180,6 @@ class Admin {
             reader.close();
             writer.close();
 
-            // Let GC settle
-            reader = null;
-            writer = null;
             System.gc();
             Thread.sleep(100);
 
@@ -200,4 +197,47 @@ class Admin {
         }
     }
 
+    public void changeAdminCredentials() {
+        String currentUser = JOptionPane.showInputDialog("Enter current username:");
+        String currentPass = JOptionPane.showInputDialog("Enter current password:");
+
+        File inputFile = new File(EMPLOYEE_FILE);
+        File tempFile = new File("data/temp.txt");
+        boolean changed = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             PrintWriter writer = new PrintWriter(new FileWriter(tempFile))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length >= 4 && data[1].equals(currentUser) && data[2].equals(currentPass) && data[3].equals("admin")) {
+                    String newUser = JOptionPane.showInputDialog("Enter new username:", data[1]);
+                    String newPass = JOptionPane.showInputDialog("Enter new password:", data[2]);
+                    writer.println(data[0] + "," + newUser + "," + newPass + "," + data[3]);
+                    changed = true;
+                } else {
+                    writer.println(line);
+                }
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+            return;
+        }
+
+        if (changed) {
+            System.gc();
+            try { Thread.sleep(100); } catch (InterruptedException ignored) {}
+
+            if (inputFile.delete() && tempFile.renameTo(inputFile)) {
+                JOptionPane.showMessageDialog(null, "Credentials updated successfully.");
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed to apply changes.");
+            }
+        } else {
+            tempFile.delete();
+            JOptionPane.showMessageDialog(null, "Admin credentials not found or incorrect.");
+        }
+    }
 }
