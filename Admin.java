@@ -55,7 +55,7 @@ class Admin {
             String id = JOptionPane.showInputDialog("Enter ID: ");
             String user = JOptionPane.showInputDialog("Enter Username: ");
             String pass = JOptionPane.showInputDialog("Enter Password: ");
-            String role = JOptionPane.showInputDialog("Enter Role (admin/marketing/inventory/sales): ");
+            String role = JOptionPane.showInputDialog("Enter Role (admin/marketing/inventory/sales/user): ");
 
             FileWriter fw = new FileWriter(EMPLOYEE_FILE, true);
             fw.write(id + "," + user + "," + pass + "," + role + "\n");

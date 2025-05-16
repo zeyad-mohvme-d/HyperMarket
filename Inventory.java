@@ -71,6 +71,20 @@ public class Inventory {
     private void addProduct() {
         try {
             String id = JOptionPane.showInputDialog("Product ID:");
+
+            // 🔍 Check if ID already exists
+            File productFile = new File(PRODUCT_FILE);
+            Scanner reader = new Scanner(productFile);
+            while (reader.hasNextLine()) {
+                String[] data = reader.nextLine().split(",");
+                if (data.length >= 1 && data[0].equals(id)) {
+                    JOptionPane.showMessageDialog(null, "❌ Product ID already exists!");
+                    reader.close();
+                    return;
+                }
+            }
+            reader.close();
+
             String name = JOptionPane.showInputDialog("Name:");
             String qtyStr = JOptionPane.showInputDialog("Quantity:");
             int qty = Integer.parseInt(qtyStr);
@@ -84,11 +98,12 @@ public class Inventory {
             FileWriter fw = new FileWriter(PRODUCT_FILE, true);
             fw.write(id + "," + name + "," + qty + "," + expiry + "\n");
             fw.close();
-            JOptionPane.showMessageDialog(null, "Product added.");
+            JOptionPane.showMessageDialog(null, "✅ Product added.");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error adding product: " + e.getMessage());
         }
     }
+
 
     private void listProducts() {
         try (Scanner reader = new Scanner(new File(PRODUCT_FILE))) {
