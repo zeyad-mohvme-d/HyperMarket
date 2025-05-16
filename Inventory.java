@@ -8,7 +8,8 @@ import java.time.format.DateTimeParseException;
 
 public class Inventory {
     private final String PRODUCT_FILE = "Data/products.txt";  // Path to products file
-    private final String EMPLOYEE_FILE = "Data/employees.txt"; // Path to employees file
+    private final String EMPLOYEE_FILE = "Data/employees.txt";
+    private final String Damaged_FILE = "Data/damaged.txt";// Path to employees file
     private Scanner scanner = new Scanner(System.in);
 
     public boolean login(String username, String password) {
@@ -35,36 +36,41 @@ public class Inventory {
                     "4. List Products\n" +
                     "5. Search Product\n" +
                     "6. Notifications\n" +
-                    "7. Logout\n" +
+                    "7. Damaged Items\n" +   // 🆕 Add this line
+                    "8. Logout\n" +
                     "Choose: ";
-            ;
+
             choice = Integer.parseInt(JOptionPane.showInputDialog(options));
 
             switch (choice) {
                 case 1:
                     addProduct();
-                    break;  // Add Product
+                    break;
                 case 2:
                     updateProduct();
-                    break;  // Update Product
+                    break;
                 case 3:
                     deleteProduct();
-                    break;  // Delete Product
+                    break;
                 case 4:
                     listProducts();
-                    break;  // List Products
+                    break;
                 case 5:
                     searchProduct();
                     break;
                 case 6:
                     notifyLowStock();
-                    break;// Search Product
+                    break;
                 case 7:
+                    damageItems();  // 🆕 Add this line
+                    break;
+                case 8:
                     JOptionPane.showMessageDialog(null, "Logging out...");
-                    break; // Logout
+                    break;
                 default:
                     JOptionPane.showMessageDialog(null, "Invalid option");
             }
+
         } while (choice != 7);
     }
 
@@ -289,4 +295,37 @@ public class Inventory {
             JOptionPane.showMessageDialog(null, "Error in notifications: " + e.getMessage());
         }
     }
+
+
+
+    private void damageItems() {
+        File damagedFile = new File(Damaged_FILE);
+        if (!damagedFile.exists()) {
+            JOptionPane.showMessageDialog(null, "No damaged items recorded.");
+            return;
+        }
+
+        StringBuilder damagedItemsText = new StringBuilder("--- Damaged Items ---\n");
+
+        try (Scanner reader = new Scanner(damagedFile)) {
+            boolean hasData = false;
+            while (reader.hasNextLine()) {
+                String line = reader.nextLine().trim();
+                if (!line.isEmpty()) {
+                    damagedItemsText.append(line).append("\n");
+                    hasData = true;
+                }
+            }
+
+            if (hasData) {
+                JOptionPane.showMessageDialog(null, damagedItemsText.toString(), "📦 Damaged Items", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "No damaged items found.");
+            }
+
+        } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "Error reading damaged file: " + e.getMessage());
+        }
+    }
+
 }
