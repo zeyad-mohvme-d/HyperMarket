@@ -4,15 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="4f1e38ef-cdf1-4812-a468-0ea68ae6cef3" name="Changes" comment="" />
+=======
+    <list default="true" id="f909cbd1-c9f9-43e1-addf-fd86f7624bad" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/out/production/HyperMarket/Data/products.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/HyperMarket/Data/products.txt" afterDir="false" />
+    </list>
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+<<<<<<< Updated upstream
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/out/production/HyperMarket/Marketing.class" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -21,10 +35,23 @@
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="2x5sD939XCHr8uBFgjZWgBUvtIA" />
+=======
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2x2qJiQ8QVU38yUNfsRcBrkJOPL" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+>>>>>>> Stashed changes
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< Updated upstream
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.InventoryManagementSystemUI.executor": "Run",
@@ -38,20 +65,55 @@
   <component name="RunManager">
     <configuration name="InventoryManagementSystemUI" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="InventoryManagementSystemUI" />
+=======
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.InventoryManagementSystemUI.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="HyperMarket" />
+>>>>>>> Stashed changes
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+<<<<<<< Updated upstream
+=======
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
+>>>>>>> Stashed changes
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
+<<<<<<< Updated upstream
       <changelist id="4f1e38ef-cdf1-4812-a468-0ea68ae6cef3" name="Changes" comment="" />
       <created>1747239148572</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1747239148572</updated>
+=======
+      <changelist id="f909cbd1-c9f9-43e1-addf-fd86f7624bad" name="Changes" comment="" />
+      <created>1747146450093</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1747146450093</updated>
+>>>>>>> Stashed changes
     </task>
     <servers />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/HyperMarket$Main.ic" NAME="Main Coverage Results" MODIFIED="1747227376846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>
