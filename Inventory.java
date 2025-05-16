@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
@@ -192,20 +194,19 @@ public class Inventory {
         File productFile = new File("Data/products.txt");
         File notifyFile = new File("Data/notifications.txt");
         File offerFile = new File("Data/offers.txt");
-        File offerFlagFile = new File("Data/offers_shown.flag");  // ✅ track shown offers
+        File offerIndexFile = new File("Data/offers_seen_index.txt");  // 🆕 track last offer index
 
         boolean anyLowStock = false;
-        boolean offerAppended = false;
+        boolean anyNewOffer = false;
 
         StringBuilder fullNotification = new StringBuilder();
-
-        // 🔸 Low stock section
         StringBuilder lowStockSummary = new StringBuilder("⚠ Low Stock Items:\n");
 
         try (
                 Scanner reader = new Scanner(productFile);
-                PrintWriter writer = new PrintWriter(new FileWriter(notifyFile, true)) // Append mode
+                PrintWriter writer = new PrintWriter(new FileWriter(notifyFile, true))
         ) {
+            // 🔹 Check product quantities
             while (reader.hasNextLine()) {
                 String line = reader.nextLine();
                 String[] data = line.split(",");
@@ -218,7 +219,7 @@ public class Inventory {
                     try {
                         quantity = Integer.parseInt(data[2].trim());
                     } catch (NumberFormatException e) {
-                        continue; // skip invalid lines
+                        continue;
                     }
 
                     if (quantity < 3) {
@@ -234,33 +235,43 @@ public class Inventory {
                 fullNotification.append(lowStockSummary).append("\n");
             }
 
-            // 🔸 One-time offer from Marketing
-            if (offerFile.exists() && !offerFlagFile.exists()) {
-                fullNotification.append("🎯 Special Offer from Marketing:\n");
+            // 🔹 Show only new offers
+            if (offerFile.exists()) {
+                List<String> allOffers = Files.readAllLines(offerFile.toPath());
+                int lastSeenIndex = 0;
 
-                try (Scanner offerReader = new Scanner(offerFile)) {
-                    while (offerReader.hasNextLine()) {
-                        String offerLine = offerReader.nextLine();
-                        fullNotification.append("- ").append(offerLine).append("\n");
+                if (offerIndexFile.exists()) {
+                    try (Scanner idxReader = new Scanner(offerIndexFile)) {
+                        if (idxReader.hasNextInt()) {
+                            lastSeenIndex = idxReader.nextInt();
+                        }
                     }
-                    offerFlagFile.createNewFile();  // mark offer as shown
-                    offerAppended = true;
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(null, "Error reading offers.txt: " + e.getMessage());
+                }
+
+                if (lastSeenIndex < allOffers.size()) {
+                    fullNotification.append("🎯 New Marketing Offers:\n");
+                    for (int i = lastSeenIndex; i < allOffers.size(); i++) {
+                        fullNotification.append("- ").append(allOffers.get(i)).append("\n");
+                    }
+
+                    // Save the new "last seen" index
+                    try (PrintWriter indexWriter = new PrintWriter(offerIndexFile)) {
+                        indexWriter.println(allOffers.size());
+                    }
+
+                    anyNewOffer = true;
                 }
             }
 
-            // Final notification display
-            if (anyLowStock || offerAppended) {
+            // 🔹 Final popup
+            if (anyLowStock || anyNewOffer) {
                 JOptionPane.showMessageDialog(null, fullNotification.toString(), "📢 Notifications", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(null, "No notifications.");
             }
 
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "products.txt not found.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error writing to notifications.txt: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error in notifications: " + e.getMessage());
         }
     }
 }

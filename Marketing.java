@@ -100,12 +100,20 @@ class Marketing {
     // Send Special Offer method
     private void sendOffer() {
         String offer = JOptionPane.showInputDialog("Enter offer description:").trim();
+
         if (offer.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Offer cannot be empty.");
         } else {
             try (FileWriter fw = new FileWriter(OFFERS_FILE, true)) {
                 fw.write(offer + "\n");
                 JOptionPane.showMessageDialog(null, "Offer sent to inventory.");
+
+                // ✅ Reset one-time flag so inventory can show it again
+                File flag = new File("Data/offers_shown.flag");
+                if (flag.exists()) {
+                    flag.delete(); // Remove the flag so offer is shown again
+                }
+
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, "Error writing offer: " + e.getMessage());
             }
