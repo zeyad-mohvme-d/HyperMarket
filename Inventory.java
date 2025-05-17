@@ -71,7 +71,7 @@ public class Inventory {
                     JOptionPane.showMessageDialog(null, "Invalid option");
             }
 
-        } while (choice != 7);
+        } while (choice != 8);
     }
 
     private void addProduct() {
